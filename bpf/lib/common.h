@@ -381,6 +381,18 @@ enum {
 
 #define MARK_MAGIC_SNAT_DONE		0x0500
 
+/* IPv4 option used to carry service addr and port for DSR. Lower 16bits set to
+ * zero so that they can be OR'd with service port.
+ *
+ * Copy = 1 (option is copied to each fragment)
+ * Class = 0 (control option)
+ * Number = 26 (not used according to [1])
+ * Len = 8 (option type (1) + option len (1) + addr (4) + port (2))
+ *
+ * [1]: https://www.iana.org/assignments/ip-parameters/ip-parameters.xhtml
+ * */
+#define DSR_IPV4_OPT_32		0x9a080000
+
 /**
  * get_identity - returns source identity from the mark field
  */
@@ -531,7 +543,8 @@ struct ct_entry {
 	      seen_non_syn:1,
 	      node_port:1,
 	      proxy_redirect:1, // Connection is redirected to a proxy
-	      reserved:9;
+	      dsr:1,
+	      reserved:8;
 	__u16 rev_nat_index;
 	__u16 backend_id; /* Populated only in v1.6+ BPF code. */
 
@@ -616,7 +629,8 @@ struct ct_state {
 	__u16 loopback:1,
 	      node_port:1,
 	      proxy_redirect:1, // Connection is redirected to a proxy
-	      reserved:13;
+	      dsr:1,
+	      reserved:12;
 	__be16 orig_dport;
 	__be32 addr;
 	__be32 svc_addr;
