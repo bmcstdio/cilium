@@ -358,6 +358,20 @@ var _ = Describe("K8sServicesTest", func() {
 				testNodePort(true)
 			})
 
+			It("Tests with direct routing and DSR", func() {
+				deleteCiliumDS(kubectl)
+				DeployCiliumOptionsAndDNS(kubectl, []string{
+					"--set global.nodePort.enabled=true",
+					"--set global.nodePort.device=" + nativeDev,
+					"--set global.nodePort.dsr=true",
+					"--set global.tunnel=disabled",
+					"--set global.autoDirectNodeRoutes=true",
+					"--set global.ipv6.enabled=false",
+				})
+
+				testNodePort(true)
+			})
+
 			Context("Tests with MetalLB", func() {
 				var (
 					metalLB string
